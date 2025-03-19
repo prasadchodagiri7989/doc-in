@@ -1,11 +1,28 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { User, Settings, Search } from 'lucide-react';
+import {  Settings, Search } from 'lucide-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { currentUser } from '@/lib/mockData';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { ClerkLoading, ClerkLoaded, UserButton } from "@clerk/clerk-react";
+import UserProfileSkeleton from "@/components/ui/UserProfile/UserProfileSkeleton";
 
 const Header = () => {
+  const {isSignedIn} = useAuth();
+  const {user} = useUser();
+  const navigate = useNavigate();
   return (
     <header className="w-full px-4 py-3 bg-white/80 backdrop-blur-md border-b border-gray-200 fixed top-0 left-0 right-0 z-40">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -38,16 +55,21 @@ const Header = () => {
             <Search className="h-5 w-5 md:hidden" />
           </Button>
           
-          <Button 
+          {
+            isSignedIn && (
+              <Button 
             variant="ghost" 
             size="icon"
             className="relative text-gray-700 hover:text-primary hover:bg-primary/10"
             aria-label="Settings"
+            onClick={() => navigate(`/profile/${user.username}`)}
           >
             <Settings className="h-5 w-5" />
           </Button>
+            )
+          }
           
-          <Link to="/profile" className="flex items-center">
+          {/* <Link to="/profile" className="flex items-center">
             <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-transparent hover:border-primary transition-all duration-200">
               <img 
                 src={currentUser.avatar} 
@@ -55,7 +77,62 @@ const Header = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-          </Link>
+          </Link> */}
+          <div className="flex items-center gap-6 py-6 md:p-6">
+          {isSignedIn ? (
+            <div>
+              <ClerkLoading>
+                <UserProfileSkeleton />
+              </ClerkLoading>
+              <ClerkLoaded>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <UserButton
+                      appearance={{
+                        elements: {
+                          userButtonAvatarBox: "h-10 w-10",
+                        },
+                      }}
+                    />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Do you really want to sign out?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => ({ redirectUrl: "/sign-in" })}
+                      >
+                        Sign Out
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </ClerkLoaded>
+            </div>
+          ) : (
+            <div className="flex gap-6">
+              <Button
+                // variant={"neon"}
+                onClick={() => navigate("/sign-in")}
+                className=" hidden sm:block shadow-md  text-white "
+              >
+              SignIn
+              </Button>
+              <Button
+                // variant={"neon"}
+                className="shadow-md text-white"
+                onClick={() => navigate("/sign-up")}
+              >
+              SignUp
+              </Button>
+            </div>
+          )}
+      </div>
         </div>
       </div>
     </header>

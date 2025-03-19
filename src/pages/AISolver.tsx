@@ -185,12 +185,20 @@ const AISolver = () => {
           
           <h1 className="text-2xl font-bold text-gray-900 mb-2">AI Medical Solver</h1>
           <p className="text-gray-600">
-            Get instant AI analysis for your medical questions and cases
+          Upload your file and receive AI-powered answers based on its content. Our system efficiently processes your documents to provide accurate insights.
           </p>
         </div>
         
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="space-y-6">
+          <div className="space-y-2">
+              <Label>Attachments</Label>
+              <FileUpload 
+                onFileUpload={handleFileUpload} 
+                existingFiles={files}
+                onRemoveFile={handleRemoveFile}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="question">Your Medical Question</Label>
               <Textarea
@@ -200,15 +208,6 @@ const AISolver = () => {
                 onChange={(e) => setQuestion(e.target.value)}
                 className="min-h-[150px] resize-y"
                 required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Attachments</Label>
-              <FileUpload 
-                onFileUpload={handleFileUpload} 
-                existingFiles={files}
-                onRemoveFile={handleRemoveFile}
               />
             </div>
             
@@ -235,7 +234,7 @@ const AISolver = () => {
               type="button" 
               className="w-full sm:w-auto flex items-center gap-2"
               onClick={analyzeQuestion}
-              disabled={isAnalyzing || !question.trim()}
+              disabled={isAnalyzing || !question.trim() || files.length === 0}
             >
               <Brain className="w-4 h-4" />
               {isAnalyzing ? 'Analyzing...' : 'Analyze with AI'}

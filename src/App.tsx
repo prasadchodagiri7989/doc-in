@@ -10,6 +10,7 @@ import QuestionDetail from "./pages/QuestionDetail";
 import Profile from "./pages/Profile";
 import AISolver from "./pages/AISolver";
 import NotFound from "./pages/NotFound";
+import { SignIn, SignUp } from "@clerk/clerk-react";
 
 const queryClient = new QueryClient();
 
@@ -23,9 +24,11 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/ask-question" element={<AskQuestion />} />
           <Route path="/questions/:id" element={<QuestionDetail />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:id" element={<Profile />} />
           <Route path="/ai-solver" element={<AISolver />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
