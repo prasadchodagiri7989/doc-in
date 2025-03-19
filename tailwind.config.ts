@@ -20,6 +20,7 @@ export default {
 		},
 		extend: {
 			colors: {
+				blueVar: '#2563eb',
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
