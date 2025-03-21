@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import { mockQuestions } from '@/lib/mockData';
+import FileUpload from '@/utils/FileUpload';
 
 const QuestionDetail = () => {
   const { id } = useParams<{ id: string }>();

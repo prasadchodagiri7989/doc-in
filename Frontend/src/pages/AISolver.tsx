@@ -12,9 +12,8 @@ import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import FileUpload from '@/components/ui/FileUpload';
 import { FileAttachment } from '@/types';
+import { GEMINI_API_KEY } from '@/config';
 
-// Gemini API key
-const GEMINI_API_KEY = "AIzaSyCt1E2pVV5Z0CBJxuCiiWVgCHdzXhG2PRI";
 
 const AISolver = () => {
   const [question, setQuestion] = useState('');

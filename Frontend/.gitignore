@@ -10,6 +10,7 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+.env
 *.local
 
 # Editor directories and files
@@ -20,6 +21,5 @@ dist-ssr
 *.suo
 *.ntvs*
 *.njsproj
-.env
 *.sln
 *.sw?

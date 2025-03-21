@@ -21,23 +21,51 @@ const AskQuestionForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const handleFileUpload = (uploadedFiles: File[]) => {
-    const newFiles: FileAttachment[] = uploadedFiles.map((file, index) => ({
-      id: `temp-${Date.now()}-${index}`,
-      name: file.name,
-      url: URL.createObjectURL(file),
-      type: file.type.includes('image') ? 'image' : 'pdf'
-    }));
-    
-    setFiles([...files, ...newFiles]);
+  const handleFileUpload = async (uploadedFiles: File[]) => {
+    const cloudinaryUrl = process.env.REACT_APP_CLOUDINARY_URL; // Ensure this is defined in your .env file
+    const uploadedFileUrls: FileAttachment[] = [];
+  
+    for (const file of uploadedFiles) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "your_upload_preset"); // Set your Cloudinary preset
+  
+      try {
+        const response = await fetch(cloudinaryUrl!, {
+          method: "POST",
+          body: formData,
+        });
+  
+        const data = await response.json();
+  
+        if (data.secure_url) {
+          uploadedFileUrls.push({
+            id: `cloud-${Date.now()}`,
+            name: file.name,
+            url: data.secure_url,
+            type: file.type.includes("image") ? "image" : "pdf",
+          });
+        }
+      } catch (error) {
+        console.error("Upload failed:", error);
+        toast({
+          title: "Upload Error",
+          description: "Failed to upload files. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }
+  
+    setFiles([...files, ...uploadedFileUrls]);
   };
+  
   
   const handleRemoveFile = (id: string) => {
     setFiles(files.filter(file => file.id !== id));
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); 
     
     if (!title.trim() || !content.trim()) {
       toast({
