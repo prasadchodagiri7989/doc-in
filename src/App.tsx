@@ -12,7 +12,7 @@ import AISolver from "./pages/AISolver";
 import NotFound from "./pages/NotFound";
 import Signup from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
-
+import Questions from "./pages/Questions";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -26,6 +26,7 @@ const App = () => (
           <Route path="/ask-question" element={<AskQuestion />} />
           <Route path="/questions/:id" element={<QuestionDetail />} />
           <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/questions" element={<Questions />} />
           <Route path="/ai-solver" element={<AISolver />} />
           <Route path="*" element={<NotFound />} />
           <Route path="/sign-in" element={<SignIn />} />

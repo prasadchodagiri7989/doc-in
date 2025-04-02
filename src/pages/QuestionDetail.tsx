@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ThumbsUp, ThumbsDown, MessageSquare, Share, Bookmark, CheckCircle, Brain } from 'lucide-react';

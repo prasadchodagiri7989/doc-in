@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/components/ui/use-toast';
 import FileUpload from '@/components/ui/FileUpload';
-import { FileAttachment } from '@/types';
+import { FileAttachment, Question } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { generateId } from '@/lib/utils';
 
 const AskQuestionForm = () => {
   const [title, setTitle] = useState('');
@@ -17,6 +18,7 @@ const AskQuestionForm = () => {
   const [useExternalResources, setUseExternalResources] = useState(false);
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [whoCanAnswer, setWhoCanAnswer] = useState('anyone'); // 'anyone' or 'medical-professional'
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -50,15 +52,44 @@ const AskQuestionForm = () => {
     
     setIsSubmitting(true);
     
-    // Simulate form submission with a timeout
-    setTimeout(() => {
-      toast({
-        title: "Question posted",
-        description: "Your question has been successfully posted"
-      });
-      setIsSubmitting(false);
-      navigate('/');
-    }, 1500);
+    // Create new question object
+    const newQuestion: Question = {
+      id: generateId(),
+      title: title.trim(),
+      content: content.trim(),
+      author: {
+        id: "user-1", // Mock user ID
+        name: "Medical Student", // Mock user name
+        avatar: "/placeholder.svg",
+        role: "student",
+        institution: "Medical University"
+      },
+      createdAt: new Date().toISOString(),
+      tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
+      votes: 0,
+      answers: [],
+      useExternalResources,
+      fileAttachments: files,
+      onlyMedicalProfessionals: whoCanAnswer === 'medical-professional'
+    };
+    
+    // Get existing questions from localStorage or initialize empty array
+    const existingQuestions = JSON.parse(localStorage.getItem('medical-questions') || '[]');
+    
+    // Add new question to the array
+    const updatedQuestions = [newQuestion, ...existingQuestions];
+    
+    // Save to localStorage
+    localStorage.setItem('medical-questions', JSON.stringify(updatedQuestions));
+    
+    // Show success message
+    toast({
+      title: "Question posted",
+      description: "Your question has been successfully posted"
+    });
+    
+    setIsSubmitting(false);
+    navigate('/questions');
   };
   
   return (
@@ -96,6 +127,24 @@ const AskQuestionForm = () => {
           onChange={(e) => setTags(e.target.value)}
         />
         <p className="text-xs text-gray-500">Add up to 5 tags to help categorize your question</p>
+      </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="whoCanAnswer">Who can answer?</Label>
+        <Select value={whoCanAnswer} onValueChange={setWhoCanAnswer}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select who can answer" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="anyone">Anyone can answer</SelectItem>
+            <SelectItem value="medical-professional" className="bg-blue-50">Only Medical Professionals</SelectItem>
+          </SelectContent>
+        </Select>
+        {whoCanAnswer === 'medical-professional' && (
+          <div className="p-3 bg-blue-50 border border-blue-100 rounded-md text-sm text-blue-800">
+            Your question will only be answered by verified medical professionals.
+          </div>
+        )}
       </div>
       
       <div className="space-y-2">

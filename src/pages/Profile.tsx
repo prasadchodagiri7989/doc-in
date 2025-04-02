@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -8,18 +7,8 @@ import { BadgeCheck, Bookmark, Edit, MessageSquare, PenTool, Settings, User as U
 import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import { currentUser } from '@/lib/mockData';
-import { useUser } from '@clerk/clerk-react';
-import { useAuth } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
 
 const Profile = () => {
-  const { id } = useParams<{ id: string }>();
-  const {isSignedIn} = useAuth();
-  const navigate = useNavigate();
-  const {user} = useUser();
-  if(!isSignedIn || id!==user.username) navigate('/sign-in');
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -31,21 +20,31 @@ const Profile = () => {
           <div className="px-6 pb-6 relative">
             <div className="flex flex-col sm:flex-row items-start sm:items-end space-y-4 sm:space-y-0 sm:space-x-4 -mt-12">
               <Avatar className="w-24 h-24 border-4 border-white relative">
-                <AvatarImage src={user.imageUrl} alt={currentUser.name} />
+                <AvatarImage src={currentUser.avatar} alt={currentUser.name} />
                 <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
               </Avatar>
               
               <div className="flex-1 pt-10 sm:pt-0">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <div className='mt-12'>
+                  <div>
                     <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-                      {user.fullName.toUpperCase()}
+                      {currentUser.name}
                     </h1>
                     <p className="text-gray-600">
                       {currentUser.role === 'student' 
                         ? `Medical Student at ${currentUser.institution}` 
                         : `${currentUser.specialization} Specialist`}
                     </p>
+                  </div>
+                  
+                  <div className="mt-4 sm:mt-0 flex space-x-3">
+                    <Button variant="outline" size="sm" className="flex items-center gap-1">
+                      <Edit className="h-4 w-4" />
+                      <span>Edit Profile</span>
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex items-center gap-1">
+                      <Settings className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </div>
