@@ -14,9 +14,11 @@ import { useAuth,useUser } from '@clerk/clerk-react';
 import { postAnswer } from '@/components/questions';
 import { getQuestionDetails } from '@/components/questions';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const QuestionDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -25,7 +27,8 @@ const QuestionDetail = () => {
   const location = useLocation();
   const question = location.state;
 
-  const handleSubmitAnswer = (e: React.FormEvent) => {
+
+  const handleSubmitAnswer = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!answer.trim()) {
@@ -50,10 +53,11 @@ const QuestionDetail = () => {
           institution: "Medical University",
         },
       };
-      postAnswer(answerSubmission);
+      await postAnswer(answerSubmission);
     } catch (err) {
       throw new Error(err);
     } finally {
+      navigate(`/questions`);
       setIsSubmitting(false);
     }
   };
@@ -117,13 +121,13 @@ const QuestionDetail = () => {
               </div>
             )}
             
-            <div className="flex flex-wrap gap-2 mb-4">
+            {/* <div className="flex flex-wrap gap-2 mb-4">
               {question.tags.map((tag) => (
                 <Badge key={tag} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
                   {tag}
                 </Badge>
               ))}
-            </div>
+            </div> */}
             
             {question.useExternalResources && (
               <div className="mb-4 flex items-center text-sm text-gray-600">

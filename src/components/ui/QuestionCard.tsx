@@ -39,13 +39,13 @@ const QuestionCard = ({ question }) => {
           </p>
         </Link>
         
-        <div className="flex flex-wrap gap-2 mb-4">
+        {/* <div className="flex flex-wrap gap-2 mb-4">
           {question.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
               {tag}
             </Badge>
           ))}
-        </div>
+        </div> */}
 
         {question.useExternalResources && (
           <div className="mb-4 flex items-center text-xs text-gray-600">
