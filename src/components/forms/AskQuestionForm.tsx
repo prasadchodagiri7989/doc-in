@@ -10,6 +10,8 @@ import FileUpload from '@/components/ui/FileUpload';
 import { FileAttachment, Question } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { generateId } from '@/lib/utils';
+import { useAuth, useUser } from '@clerk/clerk-react';
+import { postQuestion } from '../questions';
 
 const AskQuestionForm = () => {
   const [title, setTitle] = useState('');
@@ -19,7 +21,8 @@ const AskQuestionForm = () => {
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whoCanAnswer, setWhoCanAnswer] = useState('anyone'); // 'anyone' or 'medical-professional'
-  
+  const user = useAuth();
+  const userDetails = useUser();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -54,12 +57,11 @@ const AskQuestionForm = () => {
     
     // Create new question object
     const newQuestion: Question = {
-      id: generateId(),
       title: title.trim(),
       content: content.trim(),
       author: {
-        id: "user-1", // Mock user ID
-        name: "Medical Student", // Mock user name
+        id: user.userId, // Mock user ID
+        name: userDetails.user.fullName, // Mock user name
         avatar: "/placeholder.svg",
         role: "student",
         institution: "Medical University"
@@ -72,6 +74,8 @@ const AskQuestionForm = () => {
       fileAttachments: files,
       onlyMedicalProfessionals: whoCanAnswer === 'medical-professional'
     };
+
+    postQuestion(newQuestion);
     
     // Get existing questions from localStorage or initialize empty array
     const existingQuestions = JSON.parse(localStorage.getItem('medical-questions') || '[]');

@@ -2,21 +2,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ThumbsUp, MessageSquare, CheckCircle } from 'lucide-react';
-import { Question } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-interface QuestionCardProps {
-  question: Question;
-}
-
-const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
+const QuestionCard = ({ question }) => {
   return (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm question-card-hover">
       <div className="p-5">
         <div className="flex items-center space-x-2 mb-3">
           <Avatar className="w-8 h-8">
-            <AvatarImage src={question.author.avatar} alt={question.author.name} />
+            <AvatarImage  alt={question.author.name} />
             <AvatarFallback>{question.author.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
@@ -35,7 +30,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           </div>
         </div>
         
-        <Link to={`/questions/${question.id}`}>
+        <Link to={`/questions/${question._id}`} state={question}>
           <h3 className="text-lg font-semibold mb-2 hover:text-primary transition-colors duration-200">
             {question.title}
           </h3>

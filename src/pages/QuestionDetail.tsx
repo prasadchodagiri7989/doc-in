@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, ThumbsUp, ThumbsDown, MessageSquare, Share, Bookmark, CheckCircle, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,16 +10,21 @@ import { useToast } from '@/components/ui/use-toast';
 import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import { mockQuestions } from '@/lib/mockData';
+import { useAuth,useUser } from '@clerk/clerk-react';
+import { postAnswer } from '@/components/questions';
+import { getQuestionDetails } from '@/components/questions';
+import { useEffect } from 'react';
 
 const QuestionDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  
-  // Find question by id
-  const question = mockQuestions.find(q => q.id === id) || mockQuestions[0]; // Fallback to first question
-  
+  const user = useAuth();
+  const userDetails = useUser();
+  const location = useLocation();
+  const question = location.state;
+
   const handleSubmitAnswer = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -32,23 +37,30 @@ const QuestionDetail = () => {
       return;
     }
     
-    setIsSubmitting(true);
-    
-    // Simulate form submission with a timeout
-    setTimeout(() => {
-      toast({
-        title: "Answer posted",
-        description: "Your answer has been successfully posted"
-      });
+    try {
+      setIsSubmitting(true);
+      const answerSubmission = {
+        id: id,
+        content: answer.trim(),
+        author: {
+          id: user.userId, // Send user ID
+          name: userDetails.user.fullName,
+          avatar: "/placeholder.svg",
+          role: "student",
+          institution: "Medical University",
+        },
+      };
+      postAnswer(answerSubmission);
+    } catch (err) {
+      throw new Error(err);
+    } finally {
       setIsSubmitting(false);
-      setAnswer('');
-    }, 1500);
+    }
   };
   
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
       <main className="container max-w-4xl mx-auto px-4 pt-20 pb-24">
         <Button 
           variant="ghost" 
@@ -68,7 +80,7 @@ const QuestionDetail = () => {
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-3">
                 <Avatar>
-                  <AvatarImage src={question.author.avatar} alt={question.author.name} />
+                  <AvatarImage alt={question.author.name} />
                   <AvatarFallback>{question.author.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>

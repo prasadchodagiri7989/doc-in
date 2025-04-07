@@ -9,7 +9,7 @@ export interface User {
 }
 
 export interface Question {
-  id: string;
+  id?: string;
   title: string;
   content: string;
   author: User;
@@ -20,6 +20,7 @@ export interface Question {
   fileAttachments?: FileAttachment[];
   useExternalResources: boolean;
   aiAnalysis?: string;
+  onlyMedicalProfessionals: boolean;
 }
 
 export interface Answer {
