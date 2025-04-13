@@ -13,6 +13,10 @@ import NotFound from "./pages/NotFound";
 import Signup from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import Questions from "./pages/Questions";
+import DoctorForm from "./pages/DoctorRole";
+import SelectRole from "./pages/SelectRole";
+import StudentForm from "./pages/StudentRole";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -31,6 +35,9 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<Signup/>} />
+          <Route path="/select-role" element={<SelectRole />} />
+          <Route path="/doctor-form" element={<DoctorForm />} />
+          <Route path="/student-form" element={<StudentForm />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
