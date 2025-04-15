@@ -9,29 +9,40 @@ import Header from '@/components/layout/Header';
 import BottomNavigation from '@/components/layout/BottomNavigation';
 import { mockTags } from '@/lib/mockData';
 import { Link } from 'react-router-dom';
-import { Question } from '@/types';
+import { getQuestions } from '@/components/questions';
+import {User} from '../types'
+import { useAuth, useUser } from '@clerk/clerk-react';
+import { getUserDetails } from '@/components/questions';
 
 const Questions = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('latest');
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState([]);
+  const {isSignedIn} = useAuth();
+    const {user} = useUser()
+
+  const [userDetails, setUserDetails] = useState<User | null>(null);
+  
+    useEffect(() => {
+      if(isSignedIn && user){
+        const fetchUserDetails = async () => {
+          const userDetails = await getUserDetails(user.id);
+          setUserDetails(userDetails.user);
+        };
+        fetchUserDetails();
+      }
+    },[isSignedIn, user]);
   
   // Get top tags (limited to 8)
   const topTags = mockTags.slice(0, 8);
   
   // Load questions from localStorage on component mount
   useEffect(() => {
-    const savedQuestions = localStorage.getItem('medical-questions');
-    const mockQuestions = JSON.parse(localStorage.getItem('mock-questions') || '[]');
-    
-    if (savedQuestions) {
-      // Combine stored questions with mock data, if any
-      const storedQuestions = JSON.parse(savedQuestions);
-      setQuestions([...storedQuestions, ...mockQuestions]);
-    } else {
-      // If no stored questions, just use mock data
-      setQuestions(mockQuestions);
-    }
+    const loadQuestions = async () => {
+      const storedQuestions = await getQuestions();
+      setQuestions(storedQuestions);
+    };
+    loadQuestions();
   }, []);
   
   // Filter questions based on search query
@@ -107,7 +118,7 @@ const Questions = () => {
           <TabsContent value="latest" className="grid grid-cols-1 gap-5 animate-slideUp">
             {sortedQuestions.length > 0 ? (
               sortedQuestions.map(question => (
-                <QuestionCard key={question.id} question={question} />
+                <QuestionCard key={question._id} question={question} role={userDetails?.role} />
               ))
             ) : (
               <div className="text-center py-10">
@@ -122,7 +133,7 @@ const Questions = () => {
           <TabsContent value="popular" className="grid grid-cols-1 gap-5 animate-slideUp">
             {sortedQuestions.length > 0 ? (
               sortedQuestions.map(question => (
-                <QuestionCard key={question.id} question={question} />
+                <QuestionCard key={question._id} question={question} role ={userDetails?.role} />
               ))
             ) : (
               <div className="text-center py-10">

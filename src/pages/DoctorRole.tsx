@@ -3,24 +3,49 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { createNewUser } from '@/components/user';
+import { useAuth, useUser } from '@clerk/clerk-react';
 
 const DoctorForm: React.FC = () => {
   const navigate = useNavigate();
-
-  const [hospital, setHospital] = useState('');
+  const {user} = useUser();
   const [idCard, setIdCard] = useState<File | null>(null);
+  const [hospital, setHospital] = useState('');
   const [specialization, setSpecialization] = useState('');
   const [registrationNumber, setRegistrationNumber] = useState('');
   const [experience, setExperience] = useState('');
+  const [location, setLocation] = useState('');
   const [linkedin, setLinkedin] = useState('');
   const [website, setWebsite] = useState('');
-  const [phone, setPhone] = useState('');
-  const [alternateEmail, setAlternateEmail] = useState('');
+  const [institution, setInstitution] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!idCard) return;
-    navigate('/');
+    const userDetails = {
+          userId: user.id,
+          name: user.fullName,
+          email: user.emailAddresses[0].emailAddress,
+          avatar: "/placeholder.svg",
+          role: "professional",
+          institution: institution,
+        }
+    
+        const fullDetails = {
+          userId: user.id,
+          email: user.emailAddresses[0].emailAddress,
+          hospital: hospital,
+          institution: institution, 
+          specialization: specialization,
+          abhaNumber: registrationNumber,
+          experience: experience,
+          linkedin: linkedin,
+          website: website,
+          location: location
+        }
+        
+        await createNewUser(userDetails, fullDetails);
+        if (!idCard) return;
+        navigate('/');
   };
 
   return (
@@ -30,12 +55,33 @@ const DoctorForm: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
 
           <div>
+            <label className="block text-sm font-medium mb-1">Institution Name</label>
+            <Input
+              type="text"
+              placeholder="e.g. Apollo Hospital"
+              value={institution}
+              onChange={(e) => setInstitution(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
             <label className="block text-sm font-medium mb-1">Hospital Name</label>
             <Input
               type="text"
               placeholder="e.g. Apollo Hospital"
               value={hospital}
               onChange={(e) => setHospital(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Institution Location</label>
+            <Input
+              type="text"
+              placeholder="e.g. Delhi"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               required
             />
           </div>
@@ -70,7 +116,7 @@ const DoctorForm: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Medical Registration Number</label>
+            <label className="block text-sm font-medium mb-1">ABHA Number</label>
             <Input
               type="text"
               placeholder="e.g. AP/123456"
@@ -99,7 +145,6 @@ const DoctorForm: React.FC = () => {
               placeholder="https://linkedin.com/in/username"
               value={linkedin}
               onChange={(e) => setLinkedin(e.target.value)}
-              required
             />
           </div>
 
@@ -110,7 +155,6 @@ const DoctorForm: React.FC = () => {
               placeholder="https://hospitalwebsite.com"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
-              required
             />
           </div>
 

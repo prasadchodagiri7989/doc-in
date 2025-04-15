@@ -105,13 +105,13 @@ const Index = () => {
             
             <TabsContent value="latest" className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-slideUp">
               {mockQuestions.map(question => (
-                <QuestionCard key={question.id} question={question} />
+                <QuestionCard key={question.id} question={question} role="student" />
               ))}
             </TabsContent>
             
             <TabsContent value="popular" className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-slideUp">
               {[...mockQuestions].sort((a, b) => b.votes - a.votes).map(question => (
-                <QuestionCard key={question.id} question={question} />
+                <QuestionCard key={question.id} question={question} role="student" />
               ))}
             </TabsContent>
           </Tabs>

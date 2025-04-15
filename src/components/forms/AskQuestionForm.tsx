@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import {User} from '../../types'
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +11,12 @@ import FileUpload from '@/components/ui/FileUpload';
 import { FileAttachment, Question } from '@/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { generateId } from '@/lib/utils';
+import { postQuestion, getUserDetails } from '../questions';
+import { useAuth, useUser } from '@clerk/clerk-react';
 
 const AskQuestionForm = () => {
+  const {isSignedIn} = useAuth();
+  const {user} = useUser();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
@@ -19,9 +24,22 @@ const AskQuestionForm = () => {
   const [files, setFiles] = useState<FileAttachment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [whoCanAnswer, setWhoCanAnswer] = useState('anyone'); // 'anyone' or 'medical-professional'
+  const [userDetails,setUserDetails] = useState<User | null>(null);
   
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  if(!isSignedIn){
+    navigate('/sign-in')
+  }
+
+  useEffect(() => {
+      const fetchUserDetails = async () => {
+        const userDetails = await getUserDetails(user.id);
+        setUserDetails(userDetails);
+      };
+      fetchUserDetails();
+    },[isSignedIn, user]);
   
   const handleFileUpload = (uploadedFiles: File[]) => {
     const newFiles: FileAttachment[] = uploadedFiles.map((file, index) => ({
@@ -58,11 +76,11 @@ const AskQuestionForm = () => {
       title: title.trim(),
       content: content.trim(),
       author: {
-        id: "user-1", // Mock user ID
-        name: "Medical Student", // Mock user name
+        userId: user.id, // Mock user ID
+        name: user.fullName, // Mock user name
         avatar: "/placeholder.svg",
-        role: "student",
-        institution: "Medical University"
+        role: userDetails.role,
+        institution: userDetails.institution
       },
       createdAt: new Date().toISOString(),
       tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag !== ''),
@@ -70,24 +88,9 @@ const AskQuestionForm = () => {
       answers: [],
       useExternalResources,
       fileAttachments: files,
-      onlyMedicalProfessionals: whoCanAnswer === 'medical-professional'
+      answerableByEveryone: whoCanAnswer !== 'medical-professional' ? true : false
     };
-    
-    // Get existing questions from localStorage or initialize empty array
-    const existingQuestions = JSON.parse(localStorage.getItem('medical-questions') || '[]');
-    
-    // Add new question to the array
-    const updatedQuestions = [newQuestion, ...existingQuestions];
-    
-    // Save to localStorage
-    localStorage.setItem('medical-questions', JSON.stringify(updatedQuestions));
-    
-    // Show success message
-    toast({
-      title: "Question posted",
-      description: "Your question has been successfully posted"
-    });
-    
+    await postQuestion(newQuestion);
     setIsSubmitting(false);
     navigate('/questions');
   };

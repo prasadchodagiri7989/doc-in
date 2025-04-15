@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {  Settings, Search } from 'lucide-react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import {User} from '../../types'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,11 +19,23 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ClerkLoading, ClerkLoaded, UserButton } from "@clerk/clerk-react";
 import UserProfileSkeleton from "@/components/ui/UserProfile/UserProfileSkeleton";
+import { getUserDetails } from '../questions';
 
 const Header = () => {
   const {isSignedIn} = useAuth();
   const {user} = useUser();
   const navigate = useNavigate();
+  const [userDetails, setUserDetails] = useState<User | null>(null);
+
+  useEffect(() => {
+    if(isSignedIn && user){
+      const fetchUserDetails = async () => {
+        const userDetails = await getUserDetails(user.id);
+        setUserDetails(userDetails.user);
+      };
+      fetchUserDetails();
+    }
+  },[isSignedIn, user]);
   return (
     <header className="w-full px-4 py-3 bg-white/80 backdrop-blur-md border-b border-gray-200 fixed top-0 left-0 right-0 z-40">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -32,6 +45,15 @@ const Header = () => {
           aria-label="DOC.IN Home"
         >
           <span className="font-semibold text-xl text-primary">DOC.IN</span>
+          {
+            userDetails && (
+              userDetails.role === 'student' ? (
+                <span className="font-semibold text-md text-blue-500">Student</span>
+              ) : userDetails.role === 'professional' ? (
+                <span className="font-semibold text-md text-blue-500">Professional</span>
+              ) : null
+            )
+          }
         </Link>
         
         <div className="relative mx-auto w-full max-w-md hidden md:block">

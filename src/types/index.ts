@@ -1,9 +1,9 @@
 
 export interface User {
-  id: string;
+  userId: string;
   name: string;
   avatar: string;
-  role: 'student' | 'doctor';
+  role: 'student' | 'professional';
   specialization?: string;
   institution?: string;
 }
@@ -16,6 +16,7 @@ export interface Question {
   createdAt: string;
   tags: string[];
   votes: number;
+  answerableByEveryone: boolean;
   answers: Answer[];
   fileAttachments?: FileAttachment[];
   useExternalResources: boolean;
