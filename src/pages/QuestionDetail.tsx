@@ -27,7 +27,7 @@ const QuestionDetail = () => {
   const userDetails = useUser();
   const location = useLocation();
   const {question,role} = location.state;
-
+  
   const handleSubmitAnswer = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -49,10 +49,11 @@ const QuestionDetail = () => {
           id: user.userId, // Send user ID
           name: userDetails.user.fullName,
           avatar: "/placeholder.svg",
-          role: "student",
+          role: role,
           institution: "Medical University",
         },
       };
+      console.log(answerSubmission)
       await postAnswer(answerSubmission);
     } catch (err) {
       throw new Error(err);
@@ -187,14 +188,20 @@ const QuestionDetail = () => {
                           <AvatarFallback>{answer.author.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="flex items-center">
-                            <p className="font-medium">{answer.author.name}</p>
-                            {answer.isVerified && (
-                              <Badge className="ml-2 bg-green-100 text-green-800 border-green-200">
-                                <CheckCircle className="h-3 w-3 mr-1" /> Verified Doctor
-                              </Badge>
-                            )}
+                        <div className="flex items-center">
+                          <p className="font-medium">{answer.author.name}</p>
+                          {answer.isVerified && (
+                            <Badge className="ml-2 bg-green-100 text-green-800 border-green-200">
+                              <CheckCircle className="h-3 w-3 mr-1" /> Verified Doctor
+                            </Badge>
+                          )}
+                          {answer.author.role === 'professional' && (
+                            <Badge className="ml-2 bg-blue-100 text-blue-800 border-blue-200">
+                              <Brain className="h-3 w-3 mr-1" /> {answer.author.role}
+                            </Badge>
+                          )}
                           </div>
+
                           <p className="text-sm text-gray-500">
                             {answer.author.role === 'student' 
                               ? answer.author.institution 
